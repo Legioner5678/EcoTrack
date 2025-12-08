@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.ecotrack.ui.theme.EcoTrackTheme
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.ui.unit.dp
+import com.example.ecotrack.ui.profile.ProfileScreen
 
 @AndroidEntryPoint // Внедрение зависимостей в Activity
 class MainActivity : ComponentActivity() {
@@ -56,8 +57,9 @@ fun EcoTrackAppEntryPoint() {
             }
             // Маршрут для экрана профиля Дастана
             composable("profile") {
-                PlaceholderScreen("Profile")
+                ProfileScreen()
             }
+
             // Маршрут для Retrofit-советов
             composable("tips") {
                 PlaceholderScreen("Eco Tips (Retrofit)")
