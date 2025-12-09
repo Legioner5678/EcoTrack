@@ -52,6 +52,9 @@ android {
 }
 
 dependencies {
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
+
     // --- Core Android & Compose ---
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -84,6 +87,12 @@ dependencies {
 
     // --- Coroutines ---
     implementation(libs.kotlinx.coroutines.android)
+
+    // --- ViewModel ---
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)          // ← НОВАЯ
+    implementation(libs.androidx.lifecycle.viewmodel.compose)     // ← НОВАЯ (для hiltViewModel())
+    implementation(libs.androidx.lifecycle.livedata.ktx)           // ← опционально, но полезно
 
     // --- Testing ---
     testImplementation(libs.junit)
