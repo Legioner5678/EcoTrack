@@ -15,6 +15,7 @@ import com.example.ecotrack.ui.theme.EcoTrackTheme
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.ui.unit.dp
 import com.example.ecotrack.ui.profile.ProfileScreen
+import com.example.ecotrack.ui.screens.home.HabitListScreen
 
 @AndroidEntryPoint // Внедрение зависимостей в Activity
 class MainActivity : ComponentActivity() {
@@ -49,7 +50,7 @@ fun EcoTrackAppEntryPoint() {
         ) {
             // Маршрут для экрана Алена
             composable("home") {
-                PlaceholderScreen("Home (Habit List)")
+                HabitListScreen()
             }
             // Маршрут для экрана статистики
             composable("statistics") {
