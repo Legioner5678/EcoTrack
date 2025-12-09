@@ -3,41 +3,48 @@ package com.example.ecotrack.ui.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecotrack.domain.model.Habit
-// 1. ИМПОРТ РЕПОЗИТОРИЯ.
-// !!! ВНИМАНИЕ: Проверь и при необходимости замени этот путь на актуальный в твоем проекте.
-import com.example.ecotrack.data.repository.HabitRepository
-
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    // 2. ВНЕДРЕНИЕ ЗАВИСИМОСТИ (HabitRepository) через Hilt
-    private val repository: HabitRepository
+    // Здесь пока пусто. Позже сюда придет UseCase/Repository от Руслана.
 ) : ViewModel() {
 
-    // 3. ПОЛУЧЕНИЕ ДАННЫХ ИЗ ROOM
-    // Преобразуем Flow<List<Habit>> из репозитория в StateFlow для Compose
-    val habits: StateFlow<List<Habit>> = repository.getHabits() // Вызываем метод репозитория
-        .stateIn(
-            scope = viewModelScope,
-            // Начинаем собирать данные, пока есть подписчики (Compose Screen)
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList() // Начальное значение
-        )
+    // Состояние, которое будет слушать Compose
+    private val _habits = MutableStateFlow<List<Habit>>(emptyList())
+    val habits: StateFlow<List<Habit>> = _habits
 
-    // 4. ЛОГИКА ОБНОВЛЕНИЯ ДАННЫХ
-    fun onHabitToggled(habit: Habit) {
+    init {
+        loadStaticHabits()
+    }
+
+    private fun loadStaticHabits() {
+        // Статические данные для быстрой верстки (заглушка)
         viewModelScope.launch {
-            // Создаем копию привычки с инвертированным статусом
-            val updatedHabit = habit.copy(isCompletedToday = !habit.isCompletedToday)
+            _habits.value = listOf(
+                Habit(1, "Сортировать отходы", "Пластик и бумага", isCompletedToday = true),
+                Habit(2, "Меньше мяса", "Мясной вторник", isCompletedToday = false),
+                Habit(3, "Многоразовая бутылка", "Использовать свою тару", isCompletedToday = false),
+            )
+        }
+    }
 
-            // Обновляем данные в базе данных через репозиторий
-            repository.updateHabit(updatedHabit)
+    // Логика нажатия на "Выполнено"
+    fun onHabitToggled(habit: Habit) {
+        // Логика обновления в списке
+        viewModelScope.launch {
+            val updatedList = _habits.value.map {
+                if (it.id == habit.id) {
+                    it.copy(isCompletedToday = !it.isCompletedToday)
+                } else {
+                    it
+                }
+            }
+            _habits.value = updatedList
         }
     }
 }
