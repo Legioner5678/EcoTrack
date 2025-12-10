@@ -1,3 +1,5 @@
+# Основной код находится в ветке dev пока что
+
 📘 EcoTrack — Intelligent System for Supporting an Environmentally Conscious Lifestyle
 
 EcoTrack — это Android-приложение, созданное для поддержки экологически осознанного образа жизни.
