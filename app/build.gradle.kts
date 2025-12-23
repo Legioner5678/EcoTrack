@@ -1,9 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    // Добавляем KAPT (обязателен для Hilt и Room)
     id("kotlin-kapt")
-    // Добавляем плагин Hilt
+    id("com.google.dagger.hilt.android")
     alias(libs.plugins.hilt.android)
 }
 
@@ -30,13 +29,16 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
+
     buildFeatures {
         compose = true
     }
@@ -47,12 +49,12 @@ android {
 }
 
 dependencies {
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
-
+    // AndroidX Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+
+    // Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
@@ -61,34 +63,38 @@ dependencies {
     implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.compose.material:material-icons-extended")
 
-    // --- Navigation ---
+    // Navigation
     implementation(libs.androidx.navigation.compose)
 
-    // --- Hilt (Dependency Injection) ---
+    // Hilt (Dependency Injection)
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    // --- Networking (Retrofit) ---
-    implementation(libs.retrofit)
-    implementation(libs.converter.gson)
-    implementation(libs.logging.interceptor)
+    // Retrofit (Networking)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
 
-    // --- Database (Room) ---
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    kapt(libs.androidx.room.compiler)
+    // Room Database
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
 
-    // --- Coroutines ---
-    implementation(libs.kotlinx.coroutines.android)
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
 
-    // --- ViewModel ---
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)          // ← НОВАЯ
-    implementation(libs.androidx.lifecycle.viewmodel.compose)     // ← НОВАЯ (для hiltViewModel())
-    implementation(libs.androidx.lifecycle.livedata.ktx)           // ← опционально, но полезно
+    // ViewModel & LiveData
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.6")
 
-    // --- Testing ---
+    // Gson
+    implementation("com.google.code.gson:gson:2.10.1")
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -96,32 +102,9 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.2")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.2")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.2")
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.11")
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
-    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
-    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
-    implementation("androidx.navigation:navigation-compose:2.7.7")
-
-    // Retrofit
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-
-    // OkHttp (для логирования)
-    implementation("com.squareup.okhttp3:okhttp:4.11.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
-
-    // Gson
-    implementation("com.google.code.gson:gson:2.10.1")
 }
 
-// --- Настройки KAPT (должны быть вне блока android) ---
+// KAPT Configuration
 kapt {
     correctErrorTypes = true
     arguments {

@@ -2,19 +2,22 @@ package com.example.ecotrack.data.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.ecotrack.data.database.AppDatabase
+import com.example.ecotrack.data.database.EcoPointEntity
 import kotlinx.coroutines.flow.Flow
 
-/**
- * ЗАГЛУШКА: ЧАСТЬ ДАСТАНА
- * Дастан должен реализовать здесь все методы доступа к данным (DAO).
- */
 @Dao
 interface EcoPointDao {
 
-    // ЗАГЛУШКА: Временная функция для предотвращения ошибки компиляции
-    @Query("SELECT 'OK' AS TEMP_STATUS")
-    fun getEcoPoints(): Flow<List<AppDatabase.EcoPointEntity>>
+    @Insert
+    suspend fun insert(ecoPoint: EcoPointEntity)
+
+    @Query("SELECT * FROM eco_points")
+    fun getAllEcoPoints(): Flow<List<EcoPointEntity>>
+
+    @Query("SELECT * FROM eco_points WHERE id = :id")
+    suspend fun getEcoPointById(id: Int): EcoPointEntity?
+
+    @Query("DELETE FROM eco_points")
+    suspend fun deleteAll()
 }
