@@ -1,12 +1,12 @@
 package com.example.ecotrack.data
 
-/**
- * Модель данных для привычки.
- * В демо-версии id и title можно считать статичными,
- * а статус выполнения (isDone) будет меняться и сохраняться.
- */
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "habits") // Помечаем как таблицу для Room
 data class Habit(
-    val id: Int,      // Уникальный идентификатор (используется как ключ сохранения)
-    val title: String, // Название привычки
-    var isDone: Boolean // Статус выполнения (по умолчанию false)
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,      // Сделаем 0 по умолчанию, чтобы Room сам генерировал ID
+    val title: String,
+    var isDone: Boolean = false
 )
