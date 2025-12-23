@@ -6,7 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import screens.HomeScreen
-import screens.ProfileScreen
+import com.example.ecotrack.ui.profile.ProfileScreen
 import screens.SettingsScreen
 
 sealed class Screen(val route: String) {

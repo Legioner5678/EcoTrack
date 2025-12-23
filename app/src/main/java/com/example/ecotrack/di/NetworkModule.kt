@@ -15,7 +15,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "https://api.waqi.info/feed/here/?token=4d730b7f9d53e6b399cbea1a0f9044ec0363a703" // Localhost // !!! ВАЖНО: Замените на реальный API URL
+    private const val BASE_URL = "https://api.waqi.info/feed/here/?token=4d730b7f9d53e6b399cbea1a0f9044ec0363a703"
 
     @Provides
     @Singleton

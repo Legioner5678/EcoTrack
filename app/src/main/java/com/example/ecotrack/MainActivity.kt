@@ -5,6 +5,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.*
+import androidx.compose.runtime.getValue
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,26 +25,47 @@ import androidx.compose.ui.unit.dp
 import com.example.ecotrack.ui.profile.ProfileScreen
 import com.example.ecotrack.ui.screens.home.HabitListScreen
 import com.example.ecotrack.ui.analytics.AnalyticsScreen
-@AndroidEntryPoint // Внедрение зависимостей в Activity
+@AndroidEntryPoint // ОБЯЗАТЕЛЬНО для Hilt
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             EcoTrackTheme {
                 val navController = rememberNavController()
 
                 Scaffold(
                     bottomBar = {
-                        BottomNavigationBar(navController = navController)
+                        NavigationBar {
+                            val navBackStackEntry by navController.currentBackStackEntryAsState()
+                            val currentRoute = navBackStackEntry?.destination?.route
+
+                            // Кнопка Главная
+                            NavigationBarItem(
+                                selected = currentRoute == Screen.Home.route,
+                                onClick = { navController.navigate(Screen.Home.route) },
+                                icon = { Icon(Icons.Default.Home, "Home") },
+                                label = { Text("Home") }
+                            )
+                            // Кнопка Профиль (Ваш новый экран!)
+                            NavigationBarItem(
+                                selected = currentRoute == Screen.Profile.route,
+                                onClick = { navController.navigate(Screen.Profile.route) },
+                                icon = { Icon(Icons.Default.Person, "Profile") },
+                                label = { Text("Profile") }
+                            )
+                            // Кнопка Настройки
+                            NavigationBarItem(
+                                selected = currentRoute == Screen.Settings.route,
+                                onClick = { navController.navigate(Screen.Settings.route) },
+                                icon = { Icon(Icons.Default.Settings, "Settings") },
+                                label = { Text("Settings") }
+                            )
+                        }
                     }
                 ) { innerPadding ->
-                    NavigationGraph(
-                        navController = navController,
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    // Передаем отступы, чтобы контент не перекрывался менюшкой
+                    NavigationGraph(navController = navController, modifier = Modifier.padding(innerPadding))
                 }
-                EcoTrackAppEntryPoint()
             }
         }
     }
