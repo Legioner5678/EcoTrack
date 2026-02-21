@@ -2,6 +2,7 @@ package com.example.ecotrack.data.local
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 
 /**
  * Репозиторий для работы с локальным хранилищем (SharedPreferences).
@@ -26,7 +27,7 @@ class HabitProgressRepository(context: Context) {
 
     /** Сохраняет имя пользователя. */
     fun saveUserName(name: String) {
-        prefs.edit().putString(KEY_USER_NAME, name).apply()
+        prefs.edit { putString(KEY_USER_NAME, name) }
     }
 
     /** Получает имя пользователя или значение по умолчанию. */
@@ -41,7 +42,7 @@ class HabitProgressRepository(context: Context) {
      */
     fun saveHabitStatus(habitId: Int, isDone: Boolean) {
         val key = PREFIX_HABIT_STATUS + habitId
-        prefs.edit().putBoolean(key, isDone).apply()
+        prefs.edit { putBoolean(key, isDone) }
     }
 
     /** * Получает сохраненный статус выполнения привычки.
@@ -59,14 +60,14 @@ class HabitProgressRepository(context: Context) {
      * Используется на экране Профиля.
      */
     fun clearAllHabitProgress() {
-        val editor = prefs.edit()
+        prefs.edit {
 
-        // Удаляем все ключи, которые начинаются с префикса статуса привычки
-        prefs.all.keys.forEach { key ->
-            if (key.startsWith(PREFIX_HABIT_STATUS)) {
-                editor.remove(key)
+            // Удаляем все ключи, которые начинаются с префикса статуса привычки
+            prefs.all.keys.forEach { key ->
+                if (key.startsWith(PREFIX_HABIT_STATUS)) {
+                    remove(key)
+                }
             }
         }
-        editor.apply()
     }
 }

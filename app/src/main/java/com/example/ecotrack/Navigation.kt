@@ -5,9 +5,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import screens.HomeScreen
+import com.example.ecotrack.ui.screens.home.HabitListScreen
 import com.example.ecotrack.ui.profile.ProfileScreen
-import screens.SettingsScreen
+import com.example.ecotrack.ui.settings.SettingsScreen
 
 sealed class Screen(val route: String) {
     data object Home : Screen("home")
@@ -23,7 +23,7 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier = Modif
         modifier = modifier
     ) {
         composable(Screen.Home.route) {
-            HomeScreen()
+            HabitListScreen()
         }
         composable(Screen.Profile.route) {
             ProfileScreen()

@@ -1,6 +1,7 @@
 package com.example.ecotrack.di
 
-import com.example.ecotrack.data.network.api.EcoTrackApiService // Ссылка на будущий API Service
+import com.example.ecotrack.data.network.api.EcoTrackApiService
+import com.example.ecotrack.data.network.api.NewsApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,38 +16,42 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "https://api.waqi.info/feed/here/?token=4d730b7f9d53e6b399cbea1a0f9044ec0363a703"
-
     @Provides
     @Singleton
-    fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor {
-        return HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY // Логируем тело запросов и ответов
-        }
-    }
+    fun provideOkHttp(): OkHttpClient =
+        OkHttpClient.Builder().build()
 
+    // 🔵 Retrofit для НОВОСТЕЙ
     @Provides
     @Singleton
-    fun provideOkHttpClient(loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
-        return OkHttpClient.Builder()
-            .addInterceptor(loggingInterceptor)
-            .build()
-    }
-
-    @Provides
-    @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
-        return Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(okHttpClient)
+    @NewsRetrofit
+    fun provideNewsRetrofit(
+        client: OkHttpClient
+    ): Retrofit =
+        Retrofit.Builder()
+            .baseUrl("https://newsapi.org/")
+            .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-    }
 
+    // 🟢 Retrofit для AQI (если нужен)
     @Provides
     @Singleton
-    fun provideApiService(retrofit: Retrofit): EcoTrackApiService {
-        // Этот метод будет доступен после того, как Руслан создаст интерфейс в п. 2.1
-        return retrofit.create(EcoTrackApiService::class.java)
-    }
+    @AqiRetrofit
+    fun provideAqiRetrofit(
+        client: OkHttpClient
+    ): Retrofit =
+        Retrofit.Builder()
+            .baseUrl("https://api.waqi.info/")
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+    // 📰 News API
+    @Provides
+    @Singleton
+    fun provideNewsApiService(
+        @NewsRetrofit retrofit: Retrofit
+    ): NewsApiService =
+        retrofit.create(NewsApiService::class.java)
 }

@@ -2,112 +2,70 @@
 
 package com.example.ecotrack.ui.screens.home
 
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.ecotrack.domain.model.Habit
+import com.example.ecotrack.data.network.api.NewsArticle
 
 @Composable
 fun HabitListScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    val habits by viewModel.habits.collectAsState()
-    val aqiData by viewModel.aqiData.collectAsState()
+    val news by viewModel.news.collectAsState()
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("EcoTrack: Главная") })
+            TopAppBar(title = { Text("EcoTrack • Эко-новости") })
         }
-    ) { paddingValues ->
+    ) { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = paddingValues
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Секция с API данными
-            item {
-                if (aqiData != null) {
-                    Card(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer
-                        )
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(
-                                text = "📍 ${aqiData!!.city.name}",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "AQI: ${aqiData!!.aqi}",
-                                style = MaterialTheme.typography.headlineMedium
-                            )
-                            Text(
-                                text = if (aqiData!!.aqi < 50) "Воздух чистый 🌿" else "Загрязнение воздуха ⚠️",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                    }
-                }
-            }
-
-            // Заголовок списка
-            item {
-                Text(
-                    text = "Ваши эко-цели:",
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.titleSmall
-                )
-            }
-
-            // Список привычек
-            items(habits, key = { it.id }) { habit ->
-                HabitItemCard(
-                    habit = habit,
-                    onToggle = { viewModel.onHabitToggled(habit) }
-                )
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+            items(news) { article ->
+                NewsCard(article)
             }
         }
     }
 }
 
 @Composable
-fun HabitItemCard(
-    habit: Habit,
-    onToggle: () -> Unit
-) {
-    ListItem(
-        modifier = Modifier.padding(horizontal = 8.dp),
-        headlineContent = { Text(habit.title) },
-        supportingContent = { Text(habit.description) },
-        trailingContent = {
-            Checkbox(
-                checked = habit.isCompletedToday,
-                onCheckedChange = { onToggle() }
+fun NewsCard(article: NewsArticle) {
+    val context = LocalContext.current
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .clickable {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(article.url))
+                context.startActivity(intent)
+            },
+        shape = MaterialTheme.shapes.large
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(article.title, style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                article.description ?: "Без описания",
+                style = MaterialTheme.typography.bodyMedium
             )
-        },
-        leadingContent = {
-            Icon(
-                imageVector = if (habit.isCompletedToday)
-                    Icons.Default.CheckCircle else Icons.Default.Circle,
-                contentDescription = null,
-                tint = if (habit.isCompletedToday)
-                    MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                article.source.name,
+                style = MaterialTheme.typography.labelSmall
             )
         }
-    )
+    }
 }

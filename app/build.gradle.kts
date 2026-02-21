@@ -12,6 +12,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
+
         applicationId = "com.example.ecotrack"
         minSdk = 24
         targetSdk = 36

@@ -2,9 +2,8 @@ package com.example.ecotrack.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ecotrack.data.network.api.AirData
-import com.example.ecotrack.data.network.api.EcoTrackApiService
-import com.example.ecotrack.domain.model.Habit
+import com.example.ecotrack.data.network.api.NewsApiService
+import com.example.ecotrack.data.network.api.NewsArticle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,50 +12,28 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val apiService: EcoTrackApiService // Внедряем API
+    private val newsApi: NewsApiService
 ) : ViewModel() {
 
-    private val _habits = MutableStateFlow<List<Habit>>(emptyList())
-    val habits: StateFlow<List<Habit>> = _habits
+    private val _news = MutableStateFlow<List<NewsArticle>>(emptyList())
+    val news: StateFlow<List<NewsArticle>> = _news
 
-    // Добавляем состояние для AQI
-    private val _aqiData = MutableStateFlow<AirData?>(null)
-    val aqiData: StateFlow<AirData?> = _aqiData
+    private val apiKey = "4368346543624509ad03314ad617cfb7"
 
     init {
-        loadStaticHabits()
-        fetchAirQuality() // Запускаем загрузку данных из API
+        loadNews()
     }
 
-    private fun loadStaticHabits() {
-        TODO("Not yet implemented")
-    }
-
-    private fun fetchAirQuality() {
+    private fun loadNews() {
         viewModelScope.launch {
             try {
-                val response = apiService.getAirQuality()
+                val response = newsApi.getEcoNews(apiKey = apiKey)
                 if (response.status == "ok") {
-                    _aqiData.value = response.data
+                    _news.value = response.articles
                 }
             } catch (e: Exception) {
-                // Обработка ошибки
+                e.printStackTrace()
             }
-        }
-    }
-    // ... ваш метод loadStaticHabits и onHabitToggled остаются без изменений
-
-    fun onHabitToggled(habit: Habit) {
-        // Логика обновления в списке
-        viewModelScope.launch {
-            val updatedList = _habits.value.map {
-                if (it.id == habit.id) {
-                    it.copy(isCompletedToday = !it.isCompletedToday)
-                } else {
-                    it
-                }
-            }
-            _habits.value = updatedList
         }
     }
 }
