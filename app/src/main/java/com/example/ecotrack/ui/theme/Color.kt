@@ -10,6 +10,9 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
+// Цвета от сокомандника
 val PrimaryGreen = Color(0xFF2E7D32)
 val LightGreen = Color(0xFFA5D6A7)
 val DarkGreen = Color(0xFF1B5E20)
+val SkyBlue = Color(0xFF4FC3F7)
+val SkyBlueSoft = Color(0xFFD6F1FF)

@@ -2,41 +2,42 @@ package com.example.ecotrack.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = LightGreen,
+    onPrimary = DarkGreen,
+    secondary = SkyBlue,
+    tertiary = PrimaryGreen,
+    primaryContainer = DarkGreen,
+    onPrimaryContainer = LightGreen,
+    secondaryContainer = Color(0xFF0B2A33),
+    onSecondaryContainer = Color(0xFFCDEEF8),
+    background = Color(0xFF121212),
+    surface = Color(0xFF1E1E1E)
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
+    primary = PrimaryGreen,
     onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    secondary = SkyBlue,
+    onSecondary = Color(0xFF002A3A),
+    tertiary = DarkGreen,
+    primaryContainer = LightGreen,
+    onPrimaryContainer = DarkGreen,
+    secondaryContainer = SkyBlueSoft,
+    onSecondaryContainer = Color(0xFF003344),
+    background = Color(0xFFF8FBF8),
+    surface = Color.White
 )
 
 @Composable
 fun EcoTrackTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false, // Отключаем динамические цвета для сохранения брендинга
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -44,7 +45,6 @@ fun EcoTrackTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }

@@ -4,45 +4,130 @@ package com.example.ecotrack.ui.screens.home
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.example.ecotrack.data.network.api.NewsArticle
 
 @Composable
 fun HabitListScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    val news by viewModel.news.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+    val scheme = MaterialTheme.colorScheme
+
+    // Список категорий для фильтрации
+    val categories = listOf(
+        "Все" to "(ecology OR climate OR sustainability)",
+        "Климат" to "climate change",
+        "Энергия" to "renewable energy",
+        "Мусор" to "waste recycling",
+        "Океаны" to "ocean pollution",
+        "Инновации" to "eco technology",
+        "Животные" to "wildlife conservation"
+    )
+
+    var selectedCategory by remember { mutableStateOf(categories[0].first) }
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("EcoTrack • Эко-новости") })
-        }
+            Column(modifier = Modifier.background(scheme.secondaryContainer)) {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text("Эко-новости", style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold))
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = scheme.secondaryContainer
+                    )
+                )
+
+                // Ряд с категориями (Чипсы)
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(categories) { (name, query) ->
+                        FilterChip(
+                            selected = selectedCategory == name,
+                            onClick = {
+                                selectedCategory = name
+                                viewModel.loadNews(query) // Теперь loadNews принимает запрос
+                            },
+                            label = { Text(name) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = scheme.primary,
+                                selectedLabelColor = scheme.onPrimary
+                            )
+                        )
+                    }
+                }
+            }
+        },
+        containerColor = scheme.secondaryContainer
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(news) { article ->
-                NewsCard(article)
+        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+            when (val state = uiState) {
+                is HomeState.Loading -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center),
+                        color = scheme.primary
+                    )
+                }
+                is HomeState.Success -> {
+                    if (state.articles.isEmpty()) {
+                        Text("Статей не найдено", modifier = Modifier.align(Alignment.Center))
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            contentPadding = PaddingValues(bottom = 24.dp, top = 8.dp)
+                        ) {
+                            items(state.articles) { article ->
+                                GoogleNewsCard(article)
+                            }
+                        }
+                    }
+                }
+                is HomeState.Error -> {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = "Ошибка: ${state.message}", color = scheme.error, modifier = Modifier.padding(16.dp))
+                        Button(onClick = { viewModel.loadNews() }) {
+                            Text("Повторить")
+                        }
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun NewsCard(article: NewsArticle) {
+fun GoogleNewsCard(article: NewsArticle) {
     val context = LocalContext.current
+    val scheme = MaterialTheme.colorScheme
 
     Card(
         modifier = Modifier
@@ -52,20 +137,57 @@ fun NewsCard(article: NewsArticle) {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(article.url))
                 context.startActivity(intent)
             },
-        shape = MaterialTheme.shapes.large
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = scheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(article.title, style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                article.description ?: "Без описания",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                article.source.name,
-                style = MaterialTheme.typography.labelSmall
-            )
+        Column {
+            if (!article.urlToImage.isNullOrEmpty()) {
+                AsyncImage(
+                    model = article.urlToImage,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
+                        .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            Column(modifier = Modifier.padding(16.dp)) {
+                Surface(
+                    color = scheme.primaryContainer,
+                    shape = RoundedCornerShape(4.dp)
+                ) {
+                    Text(
+                        text = article.source.name,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = scheme.onPrimaryContainer,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = article.title,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        lineHeight = 20.sp
+                    ),
+                    maxLines = 3
+                )
+
+                if (!article.description.isNullOrEmpty()) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = article.description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = scheme.onSurfaceVariant,
+                        maxLines = 2
+                    )
+                }
+            }
         }
     }
 }

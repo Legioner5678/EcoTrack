@@ -7,16 +7,24 @@ import com.example.ecotrack.data.network.api.NewsArticle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+// HomeState остается в этом же файле
+sealed class HomeState {
+    object Loading : HomeState()
+    data class Success(val articles: List<NewsArticle>) : HomeState()
+    data class Error(val message: String) : HomeState()
+}
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val newsApi: NewsApiService
 ) : ViewModel() {
 
-    private val _news = MutableStateFlow<List<NewsArticle>>(emptyList())
-    val news: StateFlow<List<NewsArticle>> = _news
+    private val _uiState = MutableStateFlow<HomeState>(HomeState.Loading)
+    val uiState: StateFlow<HomeState> = _uiState.asStateFlow()
 
     private val apiKey = "4368346543624509ad03314ad617cfb7"
 
@@ -24,15 +32,26 @@ class HomeViewModel @Inject constructor(
         loadNews()
     }
 
-    private fun loadNews() {
+    fun loadNews(customQuery: String? = null) {
         viewModelScope.launch {
+            _uiState.value = HomeState.Loading
             try {
-                val response = newsApi.getEcoNews(apiKey = apiKey)
+                // Если customQuery не передан, используем стандартный широкий поиск
+                val query = customQuery ?: "(ecology OR climate OR sustainability)"
+
+                val response = newsApi.getEcoNews(
+                    query = query,
+                    apiKey = apiKey
+                )
+
                 if (response.status == "ok") {
-                    _news.value = response.articles
+                    val filteredArticles = response.articles.filter { it.title != "[Removed]" }
+                    _uiState.value = HomeState.Success(filteredArticles)
+                } else {
+                    _uiState.value = HomeState.Error("Сервер ответил: ${response.status}")
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                _uiState.value = HomeState.Error(e.localizedMessage ?: "Неизвестная ошибка")
             }
         }
     }

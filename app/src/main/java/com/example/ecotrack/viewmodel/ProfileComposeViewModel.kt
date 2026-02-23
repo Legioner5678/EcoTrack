@@ -19,6 +19,9 @@ class ProfileComposeViewModel @Inject constructor(
     val userName: StateFlow<String> = userPreferences.userName
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "Guest")
 
+    val city: StateFlow<String> = userPreferences.city
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
+
     val habits: StateFlow<List<EcoPointEntity>> = ecoPointDao.getAllHabits()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -30,10 +33,8 @@ class ProfileComposeViewModel @Inject constructor(
         viewModelScope.launch { userPreferences.saveUserName(name) }
     }
 
-    fun addHabit(title: String) {
-        viewModelScope.launch {
-            ecoPointDao.insert(EcoPointEntity(title = title))
-        }
+    fun saveCity(city: String) {
+        viewModelScope.launch { userPreferences.saveCity(city) }
     }
 
     fun deleteHabit(habit: EcoPointEntity) {

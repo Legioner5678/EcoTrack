@@ -1,6 +1,5 @@
 package com.example.ecotrack.di
 
-import com.example.ecotrack.data.network.api.EcoTrackApiService
 import com.example.ecotrack.data.network.api.NewsApiService
 import dagger.Module
 import dagger.Provides
@@ -18,40 +17,32 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttp(): OkHttpClient =
-        OkHttpClient.Builder().build()
+    fun provideLoggingInterceptor(): HttpLoggingInterceptor {
+        return HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+    }
 
-    // 🔵 Retrofit для НОВОСТЕЙ
+    @Provides
+    @Singleton
+    fun provideOkHttp(loggingInterceptor: HttpLoggingInterceptor): OkHttpClient =
+        OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
+            .build()
+
     @Provides
     @Singleton
     @NewsRetrofit
-    fun provideNewsRetrofit(
-        client: OkHttpClient
-    ): Retrofit =
+    fun provideNewsRetrofit(client: OkHttpClient): Retrofit =
         Retrofit.Builder()
             .baseUrl("https://newsapi.org/")
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
-    // 🟢 Retrofit для AQI (если нужен)
-    @Provides
-    @Singleton
-    @AqiRetrofit
-    fun provideAqiRetrofit(
-        client: OkHttpClient
-    ): Retrofit =
-        Retrofit.Builder()
-            .baseUrl("https://api.waqi.info/")
-            .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-    // 📰 News API
     @Provides
     @Singleton
     fun provideNewsApiService(
         @NewsRetrofit retrofit: Retrofit
-    ): NewsApiService =
-        retrofit.create(NewsApiService::class.java)
+    ): NewsApiService = retrofit.create(NewsApiService::class.java)
 }

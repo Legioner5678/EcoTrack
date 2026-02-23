@@ -9,7 +9,9 @@ data class NewsArticle(
     val title: String,
     val description: String?,
     val url: String,
-    val source: Source
+    val urlToImage: String?, // Добавляем поле для картинки
+    val source: Source,
+    val publishedAt: String // Понадобится для отображения времени
 )
 
 data class Source(
