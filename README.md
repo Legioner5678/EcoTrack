@@ -44,8 +44,8 @@ This project serves as a comprehensive capstone for the Android Development cour
 ---
 
 ## 👥 Development Team
-Augambaev Alen — Lead Android Developer / Software Architect
-Almerek Aitzhan — UI/UX Designer / Data Engineer
+* Augambaev Alen — Lead Android Developer / Software Architect
+* Almerek Aitzhan — UI/UX Designer / Data Engineer
 
 ---
 
