@@ -1,109 +1,72 @@
-# Основной код находится в ветке dev пока что
+# 🌍 EcoTrack: Intelligent System for Supporting an Environmentally Conscious Lifestyle
 
-📘 EcoTrack — Intelligent System for Supporting an Environmentally Conscious Lifestyle
+**EcoTrack** is a sophisticated Android application engineered to promote and sustain an environmentally conscious lifestyle. By integrating habit tracking, real-time data analysis, and gamification, the app empowers users to minimize their ecological footprint and contribute to global sustainability.
 
-EcoTrack — это Android-приложение, созданное для поддержки экологически осознанного образа жизни.
-Приложение помогает пользователям отслеживать ежедневные эко-привычки, улучшать экологическое поведение, анализировать собственный вклад и получать рекомендации по устойчивому образу жизни.
+This project serves as a comprehensive capstone for the Android Development course and provides the architectural foundation for a **Diploma Thesis**.
 
-Разработано в рамках финального проекта по курсу Android Development и используется как основа для дипломной работы.
+---
 
-🌱 Основные возможности
+## 🚀 Key Features
 
-Отслеживание экологических привычек (eco-habits)
-Ведение прогресса и статистики привычек
-Получение экологических советов и информационных материалов
-Мотивация через систему баллов, уровней и streaks
-Работа в оффлайн-режиме
-Хранение пользовательских настроек
-Чистая архитектура MVVM
+### 📡 Real-Time Environmental Intelligence
+* **Global Eco-News Feed:** Integration with NewsAPI to deliver categorized updates on Climate, Energy, Oceans, and Green Innovations.
+* **Smart Category Filtering:** Dynamic content sorting using a "Google News" style UI with custom FilterChips.
+* **Image Integration:** Visual news presentation powered by the Coil library for enhanced user engagement.
 
-🧩 Стек технологий
-🟦 Язык программирования
+### 🌱 Intelligent Habit Management
+* **Eco-Habit Tracker:** Log daily activities such as recycling, energy saving, and sustainable commuting.
+* **Gamification Engine:** Reward system based on **Eco-Points**, leveling, and daily **Streaks** to maintain consistency.
 
-Kotlin
+### 📊 Personal Analytics & Profile
+* **Historical Data:** Comprehensive history of ecological contributions stored locally via Room DB.
+* **User Personalization:** Customizable user profiles with location-based settings managed through Jetpack DataStore.
 
-📐 Архитектура
+---
 
-MVVM (Model–View–ViewModel)
-Clean package structure
-Repository pattern
+## 🛠 Technical Stack
 
-🌐 Работа с сетью
+### 🏗 Architecture & Design
+* **MVVM (Model-View-ViewModel):** Strict separation of concerns for testability and maintenance.
+* **Clean Architecture Principles:** Organized package structure for scalable development.
+* **Repository Pattern:** Centralized data access abstraction.
 
-Retrofit
-Gson Converter
-OkHttp Logging Interceptor
+### 💻 Core Technologies
+* **Language:** Kotlin (100%)
+* **UI Framework:** Jetpack Compose (Declarative UI)
+* **Dependency Injection:** Hilt (Dagger)
+* **Asynchrony:** Kotlin Coroutines & Flow for reactive state management.
 
-💾 Локальное хранение
+### 🌐 Data & Persistence
+* **Networking:** Retrofit 2 & OkHttp 3 with Logging Interceptor.
+* **Local Database:** Room Persistence Library (SQL-based habit and points storage).
+* **Key-Value Storage:** Jetpack DataStore (Modern Preferences management).
 
-Room Database
-SharedPreferences
+---
 
-⚡ Асинхронность
+## 📁 Project Structure
 
-Kotlin Coroutines
-Flow / LiveData
-
-🧭 Навигация
-
-Jetpack Navigation Component
-
-📁 Структура проекта
+```text
 com.example.ecotrack/
 │
 ├── data/
-│   ├── api/           # Retrofit API interfaces
-│   ├── model/         # Data models (DTO/Entities)
-│   ├── repository/    # Repository pattern
-│   └── local/         # Room database, DAOs
+│   ├── database/          # Room DB, DAOs, Entities (EcoPointEntity)
+│   └── network/           # Retrofit interfaces, API Models (DTOs)
+│
+├── domain/                # Business logic and domain models
 │
 ├── ui/
-│   ├── home/          # Home screen
-│   ├── habits/        # Eco habits screen
-│   └── profile/       # Profile & settings
+│   ├── screens/
+│   │   ├── home/          # News Feed & Category Filtering
+│   │   ├── analytics/     # Habit Statistics & Charts
+│   │   ├── profile/       # User Profile & Habit History
+│   │   └── settings/      # App Preferences
+│   └── theme/             # Material3 Design System (Color, Theme, Type)
 │
-├── viewmodel/         # ViewModels for each screen
-└── utils/             # Helpers, extensions, constants
+├── viewmodel/             # ViewModels (Home, Profile, Analytics, Settings)
+└── utils/                 # Helpers (UserPreferences, DateUtils, FormatUtils)
 
-🚀 План разработки
-🔹 Функционал курса Android:
+---
 
- Интеграция Retrofit
- MVVM-архитектура
- Room Database
- SharedPreferences
- Coroutines
- Работа через ветки и Pull Requests
-
-🔹 Функционал для дипломной работы:
-
- Система геймификации eco-habits
- Аналитика и графики
- Модуль рекомендаций
- UI/UX оптимизация
- Расширенная статистика
- Система уровней/достижений
-
-🛠 Запуск проекта
-git clone https://github.com/Legioner5678/EcoTrack.git
-cd EcoTrack
-Открыть проект в Android Studio
-Build → Make Project
-Run → Run 'app'
-
-👤 Автор
-
-Ален Аугамбаев
-Ruslan Tikhomirov
-Daniyar Baksharov
-Dastan Shukanov
-
-🔒 Лицензирование
-
-Проект находится в приватном репозитории и предназначен исключительно для учебных и исследовательских целей.
-Публичное распространение и использование в сторонних проектах запрещено.
-
-📌 Ссылка на репозиторий
-
-🔒 Private:
-https://github.com/Legioner5678/EcoTrack
+## 👥 Development Team
+Augambaev Alen — Lead Android Developer / Software Architect
+Almerek Aitzhan — UI/UX Designer / Data Engineer
