@@ -1,5 +1,8 @@
 package com.example.ecotrack.ui.screens.home
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecotrack.data.network.api.NewsApiService
@@ -11,7 +14,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// HomeState остается в этом же файле
 sealed class HomeState {
     object Loading : HomeState()
     data class Success(val articles: List<NewsArticle>) : HomeState()
@@ -28,6 +30,13 @@ class HomeViewModel @Inject constructor(
 
     private val apiKey = "4368346543624509ad03314ad617cfb7"
 
+    var searchQuery by mutableStateOf("")
+        private set
+
+    fun onSearchQueryChange(newQuery: String) {
+        searchQuery = newQuery
+    }
+
     init {
         loadNews()
     }
@@ -36,8 +45,8 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = HomeState.Loading
             try {
-                // Если customQuery не передан, используем стандартный широкий поиск
-                val query = customQuery ?: "(ecology OR climate OR sustainability)"
+                // Default search changed to English keywords
+                val query = customQuery ?: if (searchQuery.isNotEmpty()) searchQuery else "(ecology OR sustainability OR zero waste)"
 
                 val response = newsApi.getEcoNews(
                     query = query,
@@ -48,10 +57,10 @@ class HomeViewModel @Inject constructor(
                     val filteredArticles = response.articles.filter { it.title != "[Removed]" }
                     _uiState.value = HomeState.Success(filteredArticles)
                 } else {
-                    _uiState.value = HomeState.Error("Сервер ответил: ${response.status}")
+                    _uiState.value = HomeState.Error("Server response: ${response.status}")
                 }
             } catch (e: Exception) {
-                _uiState.value = HomeState.Error(e.localizedMessage ?: "Неизвестная ошибка")
+                _uiState.value = HomeState.Error(e.localizedMessage ?: "Unknown error")
             }
         }
     }

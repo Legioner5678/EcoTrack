@@ -73,6 +73,11 @@ dependencies {
 
     // AI
     implementation(libs.generativeai)
+    // Google Maps для Compose
+    implementation("com.google.maps.android:maps-compose:4.3.3")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+// Геолокация
+    implementation("com.google.android.gms:play-services-location:21.2.0")
 }
 
 kapt {

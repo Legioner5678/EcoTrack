@@ -3,6 +3,7 @@ package com.example.ecotrack
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Place // Иконка для карты
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -21,6 +22,7 @@ data class BottomNavItem(
 fun BottomNavigationBar(navController: NavController) {
     val items = listOf(
         BottomNavItem(Screen.Home.route, Icons.Default.Home, "Home"),
+        BottomNavItem(Screen.Map.route, Icons.Default.Place, "Map"), // Добавили кнопку Map
         BottomNavItem(Screen.Profile.route, Icons.Default.Person, "Profile"),
         BottomNavItem(Screen.Settings.route, Icons.Default.Settings, "Settings")
     )

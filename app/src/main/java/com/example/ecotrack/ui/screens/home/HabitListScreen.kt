@@ -10,6 +10,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,30 +22,32 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController // Добавлено для навигации
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.example.ecotrack.Screen // Проверь, чтобы путь к Screen был верным
+import com.example.ecotrack.Screen
 import com.example.ecotrack.data.network.api.NewsArticle
 
 @Composable
 fun HabitListScreen(
-    navController: NavHostController, // Добавили параметр для перехода в чат
+    navController: NavHostController,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scheme = MaterialTheme.colorScheme
 
+    // Updated categories to English
     val categories = listOf(
-        "Все" to "(ecology OR climate OR sustainability)",
-        "Климат" to "climate change",
-        "Энергия" to "renewable energy",
-        "Мусор" to "waste recycling",
-        "Океаны" to "ocean pollution",
-        "Инновации" to "eco technology",
-        "Животные" to "wildlife conservation"
+        "All" to "(ecology OR climate OR sustainability)",
+        "Climate" to "climate change",
+        "Energy" to "renewable energy",
+        "Waste" to "waste recycling",
+        "Oceans" to "ocean pollution",
+        "Tech" to "eco technology",
+        "Wildlife" to "wildlife conservation"
     )
 
     var selectedCategory by remember { mutableStateOf(categories[0].first) }
@@ -51,14 +57,34 @@ fun HabitListScreen(
             Column(modifier = Modifier.background(scheme.secondaryContainer)) {
                 CenterAlignedTopAppBar(
                     title = {
-                        Text("Эко-новости", style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold))
+                        Text("Eco News", style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold))
                     },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                         containerColor = scheme.secondaryContainer
                     )
                 )
 
-                // --- ВОТ ТВОЯ КНОПКА ДЛЯ ЧАТА ---
+                OutlinedTextField(
+                    value = viewModel.searchQuery,
+                    onValueChange = { viewModel.onSearchQueryChange(it) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    placeholder = { Text("Search eco news...") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(onSearch = {
+                        viewModel.loadNews()
+                    }),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = scheme.surface,
+                        unfocusedContainerColor = scheme.surface,
+                        disabledContainerColor = scheme.surface,
+                    )
+                )
+
                 Button(
                     onClick = { navController.navigate(Screen.Chat.route) },
                     modifier = Modifier
@@ -67,10 +93,9 @@ fun HabitListScreen(
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = scheme.primary)
                 ) {
-                    Text("Спросить Эко-ИИ ассистента")
+                    Text("Ask Eco-AI Assistant")
                 }
 
-                // Ряд с категориями
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -107,7 +132,7 @@ fun HabitListScreen(
                 }
                 is HomeState.Success -> {
                     if (state.articles.isEmpty()) {
-                        Text("Статей не найдено", modifier = Modifier.align(Alignment.Center))
+                        Text("No articles found", modifier = Modifier.align(Alignment.Center))
                     } else {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
@@ -126,9 +151,9 @@ fun HabitListScreen(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(text = "Ошибка: ${state.message}", color = scheme.error, modifier = Modifier.padding(16.dp))
+                        Text(text = "Error: ${state.message}", color = scheme.error, modifier = Modifier.padding(16.dp))
                         Button(onClick = { viewModel.loadNews() }) {
-                            Text("Повторить")
+                            Text("Retry")
                         }
                     }
                 }
@@ -137,7 +162,6 @@ fun HabitListScreen(
     }
 }
 
-// Функцию GoogleNewsCard оставляем без изменений под HabitListScreen
 @Composable
 fun GoogleNewsCard(article: NewsArticle) {
     val context = LocalContext.current

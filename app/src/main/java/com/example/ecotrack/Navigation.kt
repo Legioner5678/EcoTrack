@@ -8,12 +8,14 @@ import androidx.navigation.compose.composable
 import com.example.ecotrack.ui.screens.home.HabitListScreen
 import com.example.ecotrack.ui.profile.ProfileScreen
 import com.example.ecotrack.ui.settings.SettingsScreen
+import com.example.ecotrack.ui.map.EcoMapScreen // Импортируй созданный ранее экран
 
 sealed class Screen(val route: String) {
     data object Home : Screen("home")
     data object Profile : Screen("profile")
     data object Settings : Screen("settings")
     data object Chat : Screen("chat")
+    data object Map : Screen("map") // Добавили карту
 }
 
 @Composable
@@ -34,6 +36,9 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier = Modif
         }
         composable(Screen.Chat.route) {
             com.example.ecotrack.ui.screens.ChatScreen()
+        }
+        composable(Screen.Map.route) {
+            EcoMapScreen() // Тот самый экран с Google Maps
         }
     }
 }

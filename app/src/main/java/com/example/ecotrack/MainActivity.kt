@@ -28,36 +28,15 @@ class MainActivity : ComponentActivity() {
 
                 Scaffold(
                     bottomBar = {
-                        NavigationBar {
-                            val navBackStackEntry by navController.currentBackStackEntryAsState()
-                            val currentRoute = navBackStackEntry?.destination?.route
-
-                            // Кнопка Главная
-                            NavigationBarItem(
-                                selected = currentRoute == Screen.Home.route,
-                                onClick = { navController.navigate(Screen.Home.route) },
-                                icon = { Icon(Icons.Default.Home, "Home") },
-                                label = { Text("Home") }
-                            )
-                            // Кнопка Профиль (Ваш новый экран!)
-                            NavigationBarItem(
-                                selected = currentRoute == Screen.Profile.route,
-                                onClick = { navController.navigate(Screen.Profile.route) },
-                                icon = { Icon(Icons.Default.Person, "Profile") },
-                                label = { Text("Profile") }
-                            )
-                            // Кнопка Настройки
-                            NavigationBarItem(
-                                selected = currentRoute == Screen.Settings.route,
-                                onClick = { navController.navigate(Screen.Settings.route) },
-                                icon = { Icon(Icons.Default.Settings, "Settings") },
-                                label = { Text("Settings") }
-                            )
-                        }
+                        // ВЫЗЫВАЕМ ТВОЮ ФУНКЦИЮ ИЗ ФАЙЛА BottomNavBar.kt
+                        // Теперь всё управление кнопками будет в одном месте
+                        BottomNavigationBar(navController = navController)
                     }
                 ) { innerPadding ->
-                    // Передаем отступы, чтобы контент не перекрывался менюшкой
-                    NavigationGraph(navController = navController, modifier = Modifier.padding(innerPadding))
+                    NavigationGraph(
+                        navController = navController,
+                        modifier = Modifier.padding(innerPadding)
+                    )
                 }
             }
         }
