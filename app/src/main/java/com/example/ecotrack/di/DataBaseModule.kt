@@ -2,8 +2,10 @@ package com.example.ecotrack.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.ecotrack.data.database.AppDatabase // ВАЖНО: Мы пока создаем ссылку на будущий файл
-import com.example.ecotrack.data.database.dao.EcoPointDao // Ссылка на DAO
+import com.example.ecotrack.data.database.AppDatabase
+import com.example.ecotrack.data.database.dao.EcoPointDao
+import com.example.ecotrack.data.network.api.EcoBackendApiService // Добавь этот импорт
+import com.example.ecotrack.data.repository.EcoTrackRepositoryImpl // Добавь этот импорт
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,7 +20,6 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
-        // Имя базы данных
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java,
@@ -29,7 +30,16 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideEcoPointDao(appDatabase: AppDatabase): EcoPointDao {
-        // Этот метод будет доступен после того, как Дастан создаст DAO в п. 1.2
         return appDatabase.ecoPointDao()
+    }
+
+    // --- ДОБАВЬ ЭТОТ БЛОК ---
+    @Provides
+    @Singleton
+    fun provideEcoTrackRepository(
+        api: EcoBackendApiService, // Hilt возьмет это из NetworkModule
+        dao: EcoPointDao           // Hilt возьмет это из функции выше
+    ): EcoTrackRepositoryImpl {
+        return EcoTrackRepositoryImpl(api, dao)
     }
 }

@@ -1,5 +1,6 @@
 package com.example.ecotrack.di
 
+import com.example.ecotrack.data.network.api.EcoBackendApiService
 import com.example.ecotrack.data.network.api.NewsApiService
 import dagger.Module
 import dagger.Provides
@@ -10,6 +11,12 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
+import javax.inject.Qualifier
+
+// Аннотация для отличия твоего бэкенда от новостей
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class BackendRetrofit
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -30,6 +37,7 @@ object NetworkModule {
             .addInterceptor(loggingInterceptor)
             .build()
 
+    // Настройка для НОВОСТЕЙ
     @Provides
     @Singleton
     @NewsRetrofit
@@ -40,9 +48,24 @@ object NetworkModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
+    // Настройка для ТВОЕГО БЭКЕНДА
     @Provides
     @Singleton
-    fun provideNewsApiService(
-        @NewsRetrofit retrofit: Retrofit
-    ): NewsApiService = retrofit.create(NewsApiService::class.java)
+    @BackendRetrofit
+    fun provideBackendRetrofit(client: OkHttpClient): Retrofit =
+        Retrofit.Builder()
+            .baseUrl("http://192.168.8.32:8000/") // Твой IP
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+    @Provides
+    @Singleton
+    fun provideNewsApiService(@NewsRetrofit retrofit: Retrofit): NewsApiService =
+        retrofit.create(NewsApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideEcoBackendApiService(@BackendRetrofit retrofit: Retrofit): EcoBackendApiService =
+        retrofit.create(EcoBackendApiService::class.java)
 }
