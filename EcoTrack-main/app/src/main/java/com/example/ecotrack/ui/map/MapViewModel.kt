@@ -18,17 +18,23 @@ class MapViewModel @Inject constructor(
     private val _points = MutableStateFlow<List<EcoMapPoint>>(emptyList())
     val points: StateFlow<List<EcoMapPoint>> = _points
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     init {
         loadPoints()
     }
 
     fun loadPoints() {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
                 val result = repository.getRemoteEcoPoints()
                 _points.value = result
             } catch (e: Exception) {
-                // Здесь можно обработать ошибку
+                _points.value = emptyList()
+            } finally {
+                _isLoading.value = false
             }
         }
     }

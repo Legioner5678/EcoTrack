@@ -25,7 +25,6 @@ fun BottomNavigationBar(navController: NavController) {
         BottomNavItem(Screen.Habits.route, Icons.Default.Check, "Habits"),
         BottomNavItem(Screen.Map.route, Icons.Default.Place, "Map"),
         BottomNavItem(Screen.Profile.route, Icons.Default.Person, "Profile"),
-        BottomNavItem(Screen.Settings.route, Icons.Default.Settings, "Settings")
     )
 
     NavigationBar {

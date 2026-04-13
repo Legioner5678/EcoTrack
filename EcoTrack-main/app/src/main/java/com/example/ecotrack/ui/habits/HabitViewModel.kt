@@ -1,43 +1,49 @@
 package com.example.ecotrack.ui.habits
 
 import androidx.lifecycle.ViewModel
-import com.example.ecotrack.data.local.HabitProgressRepository
+import androidx.lifecycle.viewModelScope
+import com.example.ecotrack.data.repository.EcoTrackRepositoryImpl
 import com.example.ecotrack.domain.model.Habit
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HabitViewModel @Inject constructor(
-    private val repository: HabitProgressRepository
+    private val repository: EcoTrackRepositoryImpl
 ) : ViewModel() {
 
-    private val _habits = MutableStateFlow<List<Habit>>(emptyList())
-    val habits: StateFlow<List<Habit>> = _habits
+    val habits: StateFlow<List<Habit>> = repository.allHabits
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun incrementHabit(habit: Habit) {
+        if (habit.currentProgress < habit.targetCount) {
+            val updatedHabit = habit.copy(currentProgress = habit.currentProgress + 1)
+
+            viewModelScope.launch {
+                repository.updateHabit(updatedHabit)
+
+                // Если привычка завершена — фиксируем в логах и шлем на сервер
+                if (updatedHabit.currentProgress == updatedHabit.targetCount) {
+                    val finalHabit = updatedHabit.copy(
+                        lastCompletedDate = System.currentTimeMillis().toString()
+                    )
+                    repository.updateHabit(finalHabit)
+                    repository.toggleHabit(habit.id, true)
+
+                    // Попытка синхронизации с Django
+                    repository.syncHabitWithServer(habit.id)
+                }
+            }
+        }
+    }
 
     init {
-        loadHabits()
-    }
-
-    private fun loadHabits() {
-        val list = listOf(
-            Habit(1, "Своя кружка", "Кофе в свой стакан", isCompletedToday = repository.getHabitStatus(1)),
-            Habit(2, "Эко-сумка", "Поход в магазин без пакета", isCompletedToday = repository.getHabitStatus(2)),
-            Habit(3, "Сортировка", "Сдал пластик на переработку", isCompletedToday = repository.getHabitStatus(3))
-        )
-        _habits.value = list
-    }
-
-    fun toggleHabit(id: Int) {
-        val currentList = _habits.value.toMutableList()
-        val index = currentList.indexOfFirst { it.id == id }
-        if (index != -1) {
-            val habit = currentList[index]
-            val newStatus = !habit.isCompletedToday
-            repository.saveHabitStatus(id, newStatus)
-            currentList[index] = habit.copy(isCompletedToday = newStatus)
-            _habits.value = currentList
+        viewModelScope.launch {
+            repository.seedHabits()
         }
     }
 }

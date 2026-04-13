@@ -1,31 +1,87 @@
 package com.example.ecotrack.data.repository
 
 import com.example.ecotrack.data.database.dao.EcoPointDao
-import com.example.ecotrack.data.network.api.EcoBackendApiService // Новый импорт
-import com.example.ecotrack.domain.model.EcoPointEntity
-import com.example.ecotrack.domain.model.EcoMapPoint
+import com.example.ecotrack.data.database.dao.UserDao
+import com.example.ecotrack.data.network.api.EcoBackendApiService
+import com.example.ecotrack.domain.model.*
 import kotlinx.coroutines.flow.Flow
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class EcoTrackRepositoryImpl @Inject constructor(
-    private val api: EcoBackendApiService, // ЗАМЕНИЛИ ТУТ
-    private val dao: EcoPointDao
+    private val api: EcoBackendApiService,
+    private val ecoPointDao: EcoPointDao,
+    private val userDao: UserDao
 ) {
-    // Эта функция будет тянуть точки с твоего сервера
-    suspend fun getRemoteEcoPoints(): List<EcoMapPoint> {
-        return api.getEcoPoints()
+    val allHabits: Flow<List<Habit>> = ecoPointDao.getAllHabits()
+    val totalPoints: Flow<Int?> = ecoPointDao.getTotalEcoPoints()
+
+    suspend fun updateHabit(habit: Habit) {
+        ecoPointDao.updateHabit(habit)
     }
 
-    // Твои старые функции для локальной БД (пусть будут)
-    val allEcoPoints: Flow<List<EcoPointEntity>> = dao.getAllHabits()
-
-    suspend fun addEcoPoint(point: EcoPointEntity) {
-        dao.insert(point)
+    suspend fun getRemoteEcoPoints(): List<EcoMapPoint> = try {
+        api.getEcoPoints()
+    } catch (e: Exception) {
+        emptyList()
     }
 
-    suspend fun deleteEcoPoint(point: EcoPointEntity) {
-        dao.deleteHabit(point)
+    suspend fun toggleHabit(habitId: Int, isDone: Boolean) {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        val startOfDay = calendar.timeInMillis
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        val endOfDay = calendar.timeInMillis
+
+        if (isDone) {
+            ecoPointDao.insertLog(HabitLog(habitId = habitId, date = System.currentTimeMillis()))
+        } else {
+            ecoPointDao.deleteLogForDay(habitId, startOfDay, endOfDay)
+        }
+    }
+
+    suspend fun syncHabitWithServer(habitId: Int) = try {
+        val response = api.completeHabit(habitId)
+        userDao.updateUserStats(response.totalUserPoints, response.currentStreak)
+        Result.success(response)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
+    suspend fun purchaseItem(itemId: Int, itemPrice: Int): Boolean {
+        val balance = userDao.getCurrentBalance()
+        if (balance < itemPrice) return false
+        return try {
+            val response = api.buyItem(itemId)
+            if (response.isSuccess) {
+                userDao.deductPoints(itemPrice)
+                true
+            } else false
+        } catch (e: Exception) {
+            println("Purchase error: ${e.message}")
+            false
+        }
+    }
+
+    suspend fun seedHabits() {
+        val defaultHabits = listOf(
+            Habit(1, "Sorting", "Recycled plastic, glass or paper", 15, "Waste", 3, 0),
+            Habit(2, "Eco-bag", "Used a reusable bag for shopping", 10, "General", 1, 0),
+            Habit(3, "Eco Transport", "Walked, cycled or used public transport", 20, "Transport", 2, 0),
+            Habit(4, "Water Bottle", "Used a reusable water bottle", 5, "Water", 5, 0),
+            Habit(5, "Own Cup", "Coffee in your own reusable cup", 10, "Waste", 1, 0),
+            Habit(6, "Lights Off", "Turned off unnecessary lights", 5, "Energy", 4, 0),
+            Habit(7, "No Receipt", "Opted for a digital receipt", 5, "General", 1, 0),
+            Habit(8, "Quick Shower", "Shower under 5 minutes", 10, "Water", 1, 0),
+            Habit(9, "Plants Care", "Watered or planted something", 15, "General", 1, 0),
+            Habit(10, "No Straw", "Declined a plastic straw", 5, "Waste", 1, 0),
+            Habit(11, "Stairs", "Took stairs instead of elevator", 10, "Energy", 3, 0),
+            Habit(12, "Repair", "Fixed something instead of buying new", 25, "Waste", 1, 0),
+            Habit(13, "Local Food", "Bought from local farmers", 15, "Transport", 1, 0),
+            Habit(14, "Eco-friendly", "Used safe household chemicals", 10, "Water", 1, 0)
+        )
+        defaultHabits.forEach { ecoPointDao.insertHabit(it) }
     }
 }

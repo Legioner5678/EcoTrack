@@ -1,0 +1,19 @@
+# IDE файлы (теперь они не будут лезть)
+.idea/
+*.iml
+.DS_Store
+
+# Android часть
+.gradle/
+build/
+app/build/
+local.properties
+
+# Backend часть
+backend/venv/
+backend/__pycache__/
+backend/db.sqlite3
+*.py[cod]
+
+# Другое
+.volumes/

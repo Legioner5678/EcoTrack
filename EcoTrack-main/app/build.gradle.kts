@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.ecotrack"
-    compileSdk = 34 // Самая стабильная версия сейчас
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.ecotrack"
@@ -35,7 +35,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8" // Соответствует Kotlin 1.9.22
+        kotlinCompilerExtensionVersion = "1.5.8"
     }
 }
 
@@ -71,12 +71,15 @@ dependencies {
     kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.datastore.preferences)
 
-    // AI
+    // Icons & UI
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("com.airbnb.android:lottie-compose:6.4.0")
+    implementation("androidx.compose.foundation:foundation:1.6.0")
+
+    // AI & Maps
     implementation(libs.generativeai)
-    // Google Maps для Compose
     implementation("com.google.maps.android:maps-compose:4.3.3")
     implementation("com.google.android.gms:play-services-maps:18.2.0")
-// Геолокация
     implementation("com.google.android.gms:play-services-location:21.2.0")
 }
 
