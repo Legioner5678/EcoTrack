@@ -26,10 +26,11 @@ class HabitLog(models.Model):
     habit = models.ForeignKey(Habit, on_delete=models.CASCADE)
     date_completed = models.DateTimeField(auto_now_add=True)
 
-# Твоя текущая модель EcoPoint остается без изменений
+# Модель EcoPoint для карты
 class EcoPoint(models.Model):
     name = models.CharField(max_length=255)
     address = models.CharField(max_length=500)
     latitude = models.FloatField()
     longitude = models.FloatField()
     description = models.TextField(blank=True)
+

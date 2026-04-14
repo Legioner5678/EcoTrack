@@ -1,8 +1,9 @@
 package com.example.ecotrack.data.repository
 
+import android.util.Log
 import com.example.ecotrack.data.database.dao.EcoPointDao
 import com.example.ecotrack.data.database.dao.UserDao
-import com.example.ecotrack.data.network.api.EcoBackendApiService
+import com.example.ecotrack.data.network.api.*
 import com.example.ecotrack.domain.model.*
 import kotlinx.coroutines.flow.Flow
 import java.util.*
@@ -18,14 +19,55 @@ class EcoTrackRepositoryImpl @Inject constructor(
     val allHabits: Flow<List<Habit>> = ecoPointDao.getAllHabits()
     val totalPoints: Flow<Int?> = ecoPointDao.getTotalEcoPoints()
 
-    suspend fun updateHabit(habit: Habit) {
-        ecoPointDao.updateHabit(habit)
+    // --- ФУНКЦИИ ДЛЯ СЕРВЕРА ---
+
+    // Вход (твоя часть)
+    suspend fun loginRemote(username: String, password: String): TokenResponse {
+        return api.login(LoginRequest(username, password))
     }
 
+    // Регистрация (часть сокомандника)
+    suspend fun signUpRemote(username: String, email: String, password: String): SignUpResponse {
+        return api.signUpUser(SignUpRequest(username, email, password))
+    }
+
+    // Синхронизация привычки с сервером
+    suspend fun syncHabitWithServer(habitId: Int) = try {
+        val response = api.completeHabit(habitId)
+        userDao.updateUserStats(response.totalUserPoints, response.currentStreak)
+        Result.success(response)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
+    // Получение точек карты
     suspend fun getRemoteEcoPoints(): List<EcoMapPoint> = try {
         api.getEcoPoints()
     } catch (e: Exception) {
+        Log.e("REPO_ERROR", "Error fetching points: ${e.message}")
         emptyList()
+    }
+
+    // Покупка предмета через API
+    suspend fun purchaseItem(itemId: Int, itemPrice: Int): Boolean {
+        val balance = userDao.getCurrentBalance()
+        if (balance < itemPrice) return false
+        return try {
+            val response = api.buyItem(itemId)
+            if (response.isSuccess) {
+                userDao.deductPoints(itemPrice)
+                true
+            } else false
+        } catch (e: Exception) {
+            Log.e("REPO_ERROR", "Purchase error: ${e.message}")
+            false
+        }
+    }
+
+    // --- ЛОКАЛЬНЫЕ ФУНКЦИИ (БАЗА ДАННЫХ) ---
+
+    suspend fun updateHabit(habit: Habit) {
+        ecoPointDao.updateHabit(habit)
     }
 
     suspend fun toggleHabit(habitId: Int, isDone: Boolean) {
@@ -42,29 +84,7 @@ class EcoTrackRepositoryImpl @Inject constructor(
         }
     }
 
-    suspend fun syncHabitWithServer(habitId: Int) = try {
-        val response = api.completeHabit(habitId)
-        userDao.updateUserStats(response.totalUserPoints, response.currentStreak)
-        Result.success(response)
-    } catch (e: Exception) {
-        Result.failure(e)
-    }
-
-    suspend fun purchaseItem(itemId: Int, itemPrice: Int): Boolean {
-        val balance = userDao.getCurrentBalance()
-        if (balance < itemPrice) return false
-        return try {
-            val response = api.buyItem(itemId)
-            if (response.isSuccess) {
-                userDao.deductPoints(itemPrice)
-                true
-            } else false
-        } catch (e: Exception) {
-            println("Purchase error: ${e.message}")
-            false
-        }
-    }
-
+    // Твой полный список привычек
     suspend fun seedHabits() {
         val defaultHabits = listOf(
             Habit(1, "Sorting", "Recycled plastic, glass or paper", 15, "Waste", 3, 0),

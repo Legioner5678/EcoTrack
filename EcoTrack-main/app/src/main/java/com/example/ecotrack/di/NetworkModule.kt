@@ -54,7 +54,7 @@ object NetworkModule {
     @BackendRetrofit
     fun provideBackendRetrofit(client: OkHttpClient): Retrofit =
         Retrofit.Builder()
-            .baseUrl("http://10.186.70.2:8000/") // Твой IP
+            .baseUrl("http://10.0.2.2:8000/")
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

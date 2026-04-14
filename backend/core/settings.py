@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-_nv0w$6e6povf93pddgwai(w$ml_+mynh$mjw+6qj^jv$7p*e2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.8.32']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.8.32', '10.0.2.2']
 
 
 # Application definition
@@ -117,3 +117,42 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+CORS_ALLOW_ALL_ORIGINS = True 
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'rest_framework',
+    'corsheaders',  # Должно быть тут
+    'api',
+]
+
+MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', # Вот эта строка важна!
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'ecotrackappsupport@gmail.com'
+EMAIL_HOST_PASSWORD = 'uhafzktkfzzzrvdj'
+DEFAULT_FROM_EMAIL = 'EcoTrack Team <ecotrackappsupport@gmail.com>'

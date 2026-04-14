@@ -24,50 +24,33 @@ fun AuthScreen(
     onLoginSuccess: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel()
 ) {
-    var email by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoginMode by remember { mutableStateOf(true) }
 
     val authState by viewModel.uiState
     val context = LocalContext.current
 
-    // Отслеживаем успешный вход
     LaunchedEffect(authState) {
-        when (authState) {
-            is AuthState.Success -> onLoginSuccess()
-            is AuthState.Error -> {
-                Toast.makeText(context, (authState as AuthState.Error).message, Toast.LENGTH_SHORT).show()
-            }
-            else -> {}
+        if (authState is AuthState.Success) onLoginSuccess()
+        if (authState is AuthState.Error) {
+            Toast.makeText(context, (authState as AuthState.Error).message, Toast.LENGTH_SHORT).show()
         }
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFE0E5EC))
-            .padding(24.dp),
+        modifier = Modifier.fillMaxSize().background(Color(0xFFE0E5EC)).padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = if (isLoginMode) "Welcome Back" else "Create Account",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.ExtraBold,
-            color = Color(0xFF2D3748)
-        )
+        Text(text = if (isLoginMode) "Welcome Back" else "Create Account", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold)
 
-        Text(
-            text = "EcoTrack: Your Green Journey",
-            fontSize = 14.sp,
-            color = Color(0xFF718096),
-            modifier = Modifier.padding(bottom = 32.dp)
-        )
+        Spacer(modifier = Modifier.height(32.dp))
 
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email Address") },
+            value = username,
+            onValueChange = { username = it },
+            label = { Text("Username") }, // ТЕПЕРЬ ТУТ USERNAME
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             leadingIcon = { Icon(Icons.Rounded.Email, null) }
@@ -89,31 +72,21 @@ fun AuthScreen(
 
         Button(
             onClick = {
-                if (email.isNotBlank() && password.isNotBlank()) {
-                    if (isLoginMode) viewModel.login(email, password)
-                    else viewModel.register(email, password)
-                } else {
-                    Toast.makeText(context, "Fill all fields", Toast.LENGTH_SHORT).show()
+                if (username.isNotBlank() && password.isNotBlank()) {
+                    if (isLoginMode) viewModel.login(username, password)
+                    else viewModel.register(username, password)
                 }
             },
             modifier = Modifier.fillMaxWidth().height(56.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
             enabled = authState != AuthState.Loading
         ) {
-            if (authState == AuthState.Loading) {
-                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-            } else {
-                Text(if (isLoginMode) "Login" else "Sign Up", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            }
+            if (authState == AuthState.Loading) CircularProgressIndicator(color = Color.White)
+            else Text(if (isLoginMode) "Login" else "Sign Up")
         }
 
         TextButton(onClick = { isLoginMode = !isLoginMode }) {
-            Text(
-                if (isLoginMode) "Don't have an account? Sign Up"
-                else "Already have an account? Login",
-                color = Color(0xFF3B82F6)
-            )
+            Text(if (isLoginMode) "Don't have an account? Sign Up" else "Already have an account? Login")
         }
     }
 }

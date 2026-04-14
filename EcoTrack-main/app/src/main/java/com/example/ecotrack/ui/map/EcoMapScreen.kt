@@ -24,7 +24,7 @@ fun EcoMapScreen(viewModel: MapViewModel = hiltViewModel()) {
         GoogleMap(
             modifier = Modifier.fillMaxSize().padding(padding),
             cameraPositionState = cameraPositionState,
-            properties = MapProperties(isMyLocationEnabled = false) // Пока выключим для теста
+            properties = MapProperties(isMyLocationEnabled = true) // Пока выключим для теста
         ) {
             // Рисуем маркеры только если они есть
             points.forEach { point ->
