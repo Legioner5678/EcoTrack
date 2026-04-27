@@ -37,7 +37,7 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun EcoTrackTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = false, // Отключаем динамические цвета для сохранения брендинга
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

@@ -56,7 +56,6 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier = Modif
         composable(Screen.Shop.route) { ShopScreen(navController = navController) }
         composable(Screen.Ranks.route) { RankListScreen(navController = navController) }
         composable(Screen.Achievements.route) { AchievementListScreen(navController = navController) }
-
         composable(
             route = "achievement_detail/{achievementId}",
             arguments = listOf(navArgument("achievementId") { type = NavType.IntType })

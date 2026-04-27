@@ -18,23 +18,18 @@ class HabitViewModel @Inject constructor(
 
     val habits: StateFlow<List<Habit>> = repository.allHabits
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
     fun incrementHabit(habit: Habit) {
         if (habit.currentProgress < habit.targetCount) {
             val updatedHabit = habit.copy(currentProgress = habit.currentProgress + 1)
 
             viewModelScope.launch {
                 repository.updateHabit(updatedHabit)
-
-                // Если привычка завершена — фиксируем в логах и шлем на сервер
                 if (updatedHabit.currentProgress == updatedHabit.targetCount) {
                     val finalHabit = updatedHabit.copy(
                         lastCompletedDate = System.currentTimeMillis().toString()
                     )
                     repository.updateHabit(finalHabit)
                     repository.toggleHabit(habit.id, true)
-
-                    // Попытка синхронизации с Django
                     repository.syncHabitWithServer(habit.id)
                 }
             }

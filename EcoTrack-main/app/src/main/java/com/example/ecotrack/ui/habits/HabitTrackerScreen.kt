@@ -174,7 +174,7 @@ fun NeumorphicHabitCard(
                         color = Color(0xFF2D3748),
                         modifier = Modifier.weight(1f)
                     )
-                    // ОТОБРАЖЕНИЕ БАЛЛОВ
+
                     Text(
                         text = "+${habit.points} pts",
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.ExtraBold),

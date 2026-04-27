@@ -18,20 +18,12 @@ class EcoTrackRepositoryImpl @Inject constructor(
 ) {
     val allHabits: Flow<List<Habit>> = ecoPointDao.getAllHabits()
     val totalPoints: Flow<Int?> = ecoPointDao.getTotalEcoPoints()
-
-    // --- ФУНКЦИИ ДЛЯ СЕРВЕРА ---
-
-    // Вход (твоя часть)
     suspend fun loginRemote(username: String, password: String): TokenResponse {
         return api.login(LoginRequest(username, password))
     }
-
-    // Регистрация (часть сокомандника)
     suspend fun signUpRemote(username: String, email: String, password: String): SignUpResponse {
         return api.signUpUser(SignUpRequest(username, email, password))
     }
-
-    // Синхронизация привычки с сервером
     suspend fun syncHabitWithServer(habitId: Int) = try {
         val response = api.completeHabit(habitId)
         userDao.updateUserStats(response.totalUserPoints, response.currentStreak)
@@ -39,16 +31,12 @@ class EcoTrackRepositoryImpl @Inject constructor(
     } catch (e: Exception) {
         Result.failure(e)
     }
-
-    // Получение точек карты
     suspend fun getRemoteEcoPoints(): List<EcoMapPoint> = try {
         api.getEcoPoints()
     } catch (e: Exception) {
         Log.e("REPO_ERROR", "Error fetching points: ${e.message}")
         emptyList()
     }
-
-    // Покупка предмета через API
     suspend fun purchaseItem(itemId: Int, itemPrice: Int): Boolean {
         val balance = userDao.getCurrentBalance()
         if (balance < itemPrice) return false
@@ -63,9 +51,6 @@ class EcoTrackRepositoryImpl @Inject constructor(
             false
         }
     }
-
-    // --- ЛОКАЛЬНЫЕ ФУНКЦИИ (БАЗА ДАННЫХ) ---
-
     suspend fun updateHabit(habit: Habit) {
         ecoPointDao.updateHabit(habit)
     }
@@ -83,8 +68,6 @@ class EcoTrackRepositoryImpl @Inject constructor(
             ecoPointDao.deleteLogForDay(habitId, startOfDay, endOfDay)
         }
     }
-
-    // Твой полный список привычек
     suspend fun seedHabits() {
         val defaultHabits = listOf(
             Habit(1, "Sorting", "Recycled plastic, glass or paper", 15, "Waste", 3, 0),

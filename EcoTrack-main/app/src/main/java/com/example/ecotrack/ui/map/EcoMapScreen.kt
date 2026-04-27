@@ -13,8 +13,6 @@ import com.google.maps.android.compose.*
 @Composable
 fun EcoMapScreen(viewModel: MapViewModel = hiltViewModel()) {
     val points by viewModel.points.collectAsState()
-
-    // Начальная точка (например, Алматы или Астана)
     val defaultPos = LatLng(43.2389, 76.8897)
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(defaultPos, 12f)
@@ -24,9 +22,8 @@ fun EcoMapScreen(viewModel: MapViewModel = hiltViewModel()) {
         GoogleMap(
             modifier = Modifier.fillMaxSize().padding(padding),
             cameraPositionState = cameraPositionState,
-            properties = MapProperties(isMyLocationEnabled = true) // Пока выключим для теста
+            properties = MapProperties(isMyLocationEnabled = true) //
         ) {
-            // Рисуем маркеры только если они есть
             points.forEach { point ->
                 Marker(
                     state = MarkerState(position = LatLng(point.latitude, point.longitude)),

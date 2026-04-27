@@ -13,7 +13,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 import javax.inject.Qualifier
 
-// Аннотация для отличия твоего бэкенда от новостей
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class BackendRetrofit
@@ -37,7 +36,6 @@ object NetworkModule {
             .addInterceptor(loggingInterceptor)
             .build()
 
-    // Настройка для НОВОСТЕЙ
     @Provides
     @Singleton
     @NewsRetrofit
@@ -48,7 +46,6 @@ object NetworkModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
-    // Настройка для ТВОЕГО БЭКЕНДА
     @Provides
     @Singleton
     @BackendRetrofit

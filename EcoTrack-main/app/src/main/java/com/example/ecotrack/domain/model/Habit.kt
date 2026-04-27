@@ -9,13 +9,12 @@ data class Habit(
     val id: Int = 0,
     val name: String,
     val description: String,
-    val points: Int = 10,           // Переименовали pointsReward -> points для совместимости
+    val points: Int = 10,
     val category: String = "General",
     val targetCount: Int = 1,
     val currentProgress: Int = 0,
-    val lastCompletedDate: String? = null // ДОБАВИЛИ ЭТО: для фиксации даты (гггг-мм-дд)
+    val lastCompletedDate: String? = null
 )
-
 @Entity(tableName = "habit_logs")
 data class HabitLog(
     @PrimaryKey(autoGenerate = true)
